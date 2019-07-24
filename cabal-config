@@ -1,0 +1,6 @@
+remote-repo: hackage.haskell.org:http://hackage.haskell.org/packages/archive
+remote-repo-cache: /root/.cabal/packages
+program-default-options
+  gcc-options: -Os -Wl,--gc-sections -ffunction-sections -fdata-sections
+  ghc-options: -optc-Os -optlo-Os -split-sections -optlc-function-sections -optc-Wl,--gc-sections
+  

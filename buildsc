@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+cabal install --dependencies-only
+# Cabal doesn't support cross-compilation, so use a simple build type that does
+# not require differentiating between host and target compilers. Sadly, this
+# requires us to modify the file in-place because `--cabal-file=..` only a
+# valid option to `configure` and `install`. When we `build`, it gets
+# overwritten with the changes from `ShellCheck.cabal`
+cp ShellCheck.cabal ShellCheck.cabal.orig
+trap 'mv ShellCheck.cabal.orig ShellCheck.cabal' EXIT
+sed '/Build-Type:.*/s//Build-Type: Simple/' < ShellCheck.cabal.orig > ShellCheck.cabal
+
+# We just need Paths_ShellCheck but Cabal tries to build everything. Bail and pray.
+timeout 15 cabal build Paths_ShellCheck || true
+
+ghc -optl-static -optl-pthread -isrc -idist/build/autogen --make shellcheck
+strip --strip-all shellcheck
